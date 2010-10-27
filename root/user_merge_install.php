@@ -66,7 +66,7 @@ $version_config_name = 'user_merge_version';
 $versions = array(
 	// Version 1.2.0
 	'1.2.0'	=> array(
-		
+
 		// and last but not least...a module
 		'module_add' => array(
 			// let's add our module
@@ -77,8 +77,8 @@ $versions = array(
 					'module_auth'		=> 'acl_a_user',
 				),
 			),
-		),		
-		
+		),
+
 		//purge the cache
 		'cache_purge' => array(),
 	),
