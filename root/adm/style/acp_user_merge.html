@@ -46,6 +46,13 @@
 			<dd><input class="text narrow" type="text" id="new_username" name="new_username" value="{NEW_USERNAME}" /></dd>
 			<dd>[ <a href="{U_FIND_NEW_USERNAME}" onclick="find_username(this.href); return false;">{L_FIND_USERNAME}</a> ]</dd>
 		</dl>
+		
+		<dl>
+			<dt><label for="use_earliest">{L_EARLIEST_DATE}:</label><br /><span>{L_EARLIEST_DATE_EXPLAIN}</span></dt>
+			<dd><label><input type="radio" id="use_earliest" name="use_earliest" value="1" checked="checked" class="radio" /> Yes</label>
+				<label><input type="radio" name="use_earliest" value="0" class="radio" /> No</label></dd>
+		</dl>
+
 	</fieldset>
 
 	<fieldset class="submit-buttons">
