@@ -58,5 +58,7 @@ $lang = array_merge($lang, array(
 	'OLD_USER_EXPLAIN'	=> 'The old user that is to be merged.  Beware, this user will be deleted upon merge.',
 	'NEW_USER'					=> 'New username',
 	'NEW_USER_EXPLAIN'	=> 'The new user that the other user should be merged into.  This user must already exist.',
+	'EARLIEST_DATE'				=> 'Keep earliest join date',
+	'EARLIEST_DATE_EXPLAIN'	=> "Keep the earliest join date from either username otherwise will use the new username's join date.",
 ));
 ?>

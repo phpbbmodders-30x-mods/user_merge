@@ -43,6 +43,7 @@ class acp_user_merge
 
 		$old_username	= utf8_normalize_nfc(request_var('old_username', '', true));
 		$new_username	= utf8_normalize_nfc(request_var('new_username', '', true));
+		$use_earliest 	= request_var('use_earliest', 1);
 
 		// Setup some things for the module.
 		$user->add_lang(array('mods/info_acp_user_merge', 'mods/lang_user_merge'));
@@ -69,7 +70,7 @@ class acp_user_merge
 			if(confirm_box(true))
 			{
 				// Let's roll!
-				user_merge($old_user_id, $new_user_id);
+				user_merge($old_user_id, $new_user_id, $use_earliest);
 				add_log('admin', 'LOG_USERS_MERGED', $old_username . ' &raquo; ' . $new_username);
 				trigger_error($user->lang['USERS_MERGED'] . adm_back_link($this->u_action));
 			}
@@ -80,6 +81,7 @@ class acp_user_merge
 					'mode'				=> $mode,
 					'old_username'		=> $old_username,
 					'new_username'		=> $new_username,
+					'use_earliest'		=> $use_earliest,
 					'action'	=> 'merge',
 				);
 
@@ -99,6 +101,7 @@ class acp_user_merge
 			'U_FIND_NEW_USERNAME'		=> append_sid("{$phpbb_root_path}memberlist.$phpEx", 'mode=searchuser&amp;form=user_merge&amp;field=new_username&amp;select_single=true'),
 			'OLD_USERNAME'				=> (!empty($old_user_id)) ? $old_username : '',
 			'NEW_USERNAME'				=> (!empty($new_user_id)) ? $new_username : '',
+			'USE_EARLIEST'				=> (!empty($use_earliest)) ? $use_earliest : 1,
 
 			'L_TITLE'					=> $user->lang['ACP_USER_MERGE_TITLE'],
 			'L_EXPLAIN'					=> $user->lang['ACP_USER_MERGE_EXPLAIN'],
@@ -165,10 +168,11 @@ class acp_user_merge
  * @author eviL3
  * @param int $old_user User id of the old user
  * @param int $new_user User id of the new user
+ * @param bool $use_earliest_date Choice whether or not to use the earlier join date
  *
  * @return void
  */
-function user_merge($old_user, $new_user)
+function user_merge($old_user, $new_user, $use_earliest_date)
 {
 	global $user, $db;
 
@@ -180,6 +184,32 @@ function user_merge($old_user, $new_user)
 
 	$old_user = (int) $old_user;
 	$new_user = (int) $new_user;
+	$use_earliest_date = (bool) $use_earliest_date;
+
+	// Choose the oldest join date only if user selected
+	if ($use_earliest_date) 
+	{
+		// initially set the join date to an impossibly late join date/time: this particular instant
+		$earliest_join_date = strval(time());
+
+		$sql = 'SELECT user_regdate
+			FROM ' . USERS_TABLE . '
+			WHERE ' . $db->sql_in_set('user_id', array($old_user, $new_user));
+		$result = $db->sql_query($sql);
+
+		while($return = $db->sql_fetchrow($result))
+		{
+		if ($earliest_join_date > $return['user_regdate'])
+			{
+				$earliest_join_date = $return['user_regdate'];
+			}
+		}
+		$db->sql_freeresult($result);
+
+		// Now set the new user to have the earliest join date
+		$db->sql_query('UPDATE ' . USERS_TABLE . ' SET user_regdate = ' . $earliest_join_date . 
+			' WHERE user_id = ' . $new_user);
+	}
 
 	// Update postcount
 	$total_posts = 0;
